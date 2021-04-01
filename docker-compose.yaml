@@ -22,7 +22,7 @@ services:
     - ./tmp:/mnt/dir
     depends_on:
     - rabbitmq
-  consumer:
+  .consumer:
     image: consumer
     build: 
       context: .
@@ -30,30 +30,33 @@ services:
     environment:
     - CONSUMER_BROKER_HOST=rabbitmq
     - CONSUMER_EXCHANGE_NAME=my-exchange
-  celery-consumer:
+  .mp-consumer:
+    image: consumer-multiprocessing
     build: 
       context: .
-      dockerfile: Dockerfiles/celery-consumer.Dockerfile
+      dockerfile: Dockerfiles/consumer-mp.Dockerfile
+    environment:
+    - CONSUMER_NUM_WORKERS=2
+    - CONSUMER_BROKER_HOST=rabbitmq
+    - CONSUMER_EXCHANGE_NAME=my-exchange
   python-consumer:
-    # image: consumer
-    extends: consumer
-    # container_name: python-consumer
+    extends: .consumer
     environment:
     - ROUTING_KEY=python
     depends_on:
     - rabbitmq
-    # environment:
-    # - ROUTING_KEY=python
-    # - RABBITMQ_HOST=rabbitmq
-    # - EXCHANGE=my-exchange
   docker-consumer:
-    #image: consumer
-    extends: consumer
-    # container_name: docker-consumer
+    extends: .consumer
     environment:
     - CONSUMER_ROUTING_KEY=docker
     - CONSUMER_QUEUE_NAME=docker-queue
-    # - RABBITMQ_HOST=rabbitmq
-    # - EXCHANGE=my-exchange
     depends_on:
     - rabbitmq
+  docker-mp-consumer:
+    extends: .mp-consumer
+    environment:
+    - CONSUMER_ROUTING_KEY=docker
+    - CONSUMER_QUEUE_NAME=docker-queue
+    depends_on:
+    - rabbitmq
+

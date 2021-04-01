@@ -8,9 +8,7 @@ def flag_func(k, v):
         return [k]
     return []
 
-argv = [
-    getenv('CONSUMER_ROUTING_KEY')
-]
+argv = []
 
 def apply(key, arg_name, func=DEFAULT_FUNC):
     global argv
@@ -18,7 +16,9 @@ def apply(key, arg_name, func=DEFAULT_FUNC):
     if val:
         argv += func(arg_name, val)
 
+apply('CONSUMER_ROUTING_KEY', '--routing-key')
 apply('CONSUMER_BROKER_HOST', '--broker-host')
+apply('CONSUMER_NUM_WORKERS', '--workers')
 apply('CONSUMER_QUEUE_NAME', '--queue-name')
 apply('CONSUMER_EXCHANGE_NAME', '--exchange-name')
 apply('CONSUMER_DURABLE', '--durable', flag_func)

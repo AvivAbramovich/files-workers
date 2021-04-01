@@ -1,5 +1,5 @@
 from os import getenv
-from .__main__ import main
+from .main import main
 
 argv = [getenv('WATCH_PATH')]
 

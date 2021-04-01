@@ -6,7 +6,8 @@ ADD src/publisher/requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt 
 
-ADD src src
+ADD src/ready_files_handler src/ready_files_handler
+ADD src/publisher src/publisher
 
 ENV PYTHONUNBEFFERED=1
 ENV RABBITMQ_HOST localhost
