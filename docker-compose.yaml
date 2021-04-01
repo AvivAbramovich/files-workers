@@ -1,0 +1,59 @@
+version: '3'
+services: 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+    - 5672:5672
+    - 8080:15672
+  publisher:
+    image: publisher
+    container_name: publisher
+    build: 
+      context: .
+      dockerfile: Dockerfiles/publisher.Dockerfile
+    environment:
+    - WATCH_PATH=/mnt/dir
+    - RABBITMQ_HOST=rabbitmq
+    - EXCHANGE=my-exchange
+    - KEYS=python;docker
+    volumes:
+    - ./tmp:/mnt/dir
+    depends_on:
+    - rabbitmq
+  consumer:
+    image: consumer
+    build: 
+      context: .
+      dockerfile: Dockerfiles/consumer.Dockerfile
+    environment:
+    - CONSUMER_BROKER_HOST=rabbitmq
+    - CONSUMER_EXCHANGE_NAME=my-exchange
+  celery-consumer:
+    build: 
+      context: .
+      dockerfile: Dockerfiles/celery-consumer.Dockerfile
+  python-consumer:
+    # image: consumer
+    extends: consumer
+    # container_name: python-consumer
+    environment:
+    - ROUTING_KEY=python
+    depends_on:
+    - rabbitmq
+    # environment:
+    # - ROUTING_KEY=python
+    # - RABBITMQ_HOST=rabbitmq
+    # - EXCHANGE=my-exchange
+  docker-consumer:
+    #image: consumer
+    extends: consumer
+    # container_name: docker-consumer
+    environment:
+    - CONSUMER_ROUTING_KEY=docker
+    - CONSUMER_QUEUE_NAME=docker-queue
+    # - RABBITMQ_HOST=rabbitmq
+    # - EXCHANGE=my-exchange
+    depends_on:
+    - rabbitmq
